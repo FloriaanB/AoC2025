@@ -1,0 +1,78 @@
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.numeric_std.ALL;
+
+ENTITY part2 IS
+  PORT (
+    clk : IN STD_LOGIC;
+    rst : IN STD_LOGIC;
+    value : IN signed(15 DOWNTO 0);
+    direction : IN STD_LOGIC;
+    valid : IN STD_LOGIC;
+    code_out : OUT signed(15 DOWNTO 0);
+    done : OUT STD_LOGIC
+  );
+END part2;
+
+ARCHITECTURE rtl OF part2 IS
+
+  SIGNAL score_r, value_r : signed(15 DOWNTO 0);
+  SIGNAL valid_d : STD_LOGIC;
+  SIGNAL code : signed(15 DOWNTO 0);
+
+  SIGNAL score : signed(15 DOWNTO 0);
+  SIGNAL hundreds : signed(15 DOWNTO 0);
+
+BEGIN
+
+  PROCESS (clk, rst)
+    VARIABLE code_add : signed(15 DOWNTO 0);
+  BEGIN
+    IF rst = '1' THEN
+      code <= (OTHERS => '0');
+      score_r <= to_signed(50, 16);
+      valid_d <= '0';
+      done <= '0';
+    ELSIF rising_edge(clk) THEN
+      code_add := (OTHERS => '0');
+      IF valid = '1' THEN
+
+        IF score < 0 THEN
+          score_r <= 100 + score;
+          IF score_r /= 0 THEN
+            code_add := code_add + 1;
+          END IF;
+        ELSIF score > 100 THEN
+          score_r <= score - 100;
+          IF score_r /= 0 THEN
+            code_add := code_add + 1;
+          END IF;
+        ELSIF score = 100 THEN
+          score_r <= (OTHERS => '0');
+        ELSE
+          score_r <= score;
+        END IF;
+
+        IF score_r = 0 THEN
+          code_add := code_add + 1;
+        END IF;
+
+        valid_d <= valid;
+
+        done <= valid_d AND NOT valid;
+
+        REPORT to_string(to_integer(code_add));
+        code <= code + code_add + hundreds;
+
+      END IF;
+    END IF;
+  END PROCESS;
+
+  code_out <= code;
+
+  score <= score_r - value MOD 100 WHEN direction = '1' ELSE
+           score_r + value MOD 100;
+
+  hundreds <= (value - value MOD 100) / 100;
+
+END ARCHITECTURE;
