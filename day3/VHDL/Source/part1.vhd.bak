@@ -1,0 +1,52 @@
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.numeric_std.ALL;
+USE work.utils.ALL;
+
+ENTITY part1 IS
+  PORT (
+    clk : IN STD_LOGIC;
+    rst : IN STD_LOGIC;
+    input : IN digit_array_t;
+
+    output : OUT INTEGER
+
+  );
+END part1;
+
+ARCHITECTURE rtl OF part1 IS
+
+  SIGNAL highs, lows : STD_LOGIC_VECTOR(3 DOWNTO 0);
+  SIGNAL count : INTEGER;
+
+BEGIN
+
+  PROCESS (input)
+    VARIABLE high, low : STD_LOGIC_VECTOR(3 DOWNTO 0);
+  BEGIN
+    high := (OTHERS => '0');
+    low := (OTHERS => '0');
+    FOR i IN 0 TO 100 LOOP
+      IF unsigned(input(i)) > unsigned(high) AND i < 100 THEN
+        high := input(i);
+        low := (OTHERS => '0');
+      ELSIF unsigned(input(i)) > unsigned(low) THEN
+        low := input(i);
+      ELSIF unsigned(input(i)) = unsigned(low) THEN
+        low := input(i);
+      END IF;
+    END LOOP;
+    highs <= high;
+    lows <= low;
+  END PROCESS;
+
+  PROCESS (clk, rst)
+  BEGIN
+    IF rst = '1' THEN
+      count <= 0;
+    ELSIF rising_edge(clk) THEN
+      count <= to_integer(unsigned(highs)) * 10 + to_integer(unsigned(lows)) + count;
+    END IF;
+  END PROCESS;
+
+END ARCHITECTURE;
