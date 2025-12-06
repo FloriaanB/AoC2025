@@ -13,5 +13,6 @@ sim:
 
 clear:
 	@$(GHDL) --clean
+	@rm -f $(wildcard *.o) $(wildcard *.ghw) $(wildcard *.cf)
 
 

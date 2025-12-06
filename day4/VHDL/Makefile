@@ -1,6 +1,7 @@
 GHDL = ghdl
 SOURCES = $(wildcard Source/*.vhd)
 TESTBENCH = $(wildcard Testbench/*.vhd)
+
 MODULE = -m ghdl
 
 FLAGS= -fsynopsys --std=08 -frelaxed
@@ -13,5 +14,6 @@ sim:
 
 clear:
 	@$(GHDL) --clean
+	@rm -f $(wildcard *.o) $(wildcard *.ghw) $(wildcard *.cf)
 
 
